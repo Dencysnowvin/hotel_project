@@ -1,4 +1,5 @@
-package com.cts.hotel.dto;
+package com.cts.userservice.dto;
+
 
 
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package com.cts.bookingservice.dto;
+package com.cts.hotel.dto;
 
 import java.time.LocalDate;
 
@@ -36,7 +36,5 @@ public class BookingDTO {
 	@Size(min = 3, max = 20, message = "Status should be between 3 and 20 characters")
 	private String status; // Pending, Confirmed, Cancelled
 
-//	private UserDTO user; // Include user details
-//	private HotelDTO hotel; // Include hotel details
 
 }

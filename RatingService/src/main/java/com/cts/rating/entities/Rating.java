@@ -1,6 +1,8 @@
 package com.cts.rating.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Max;
@@ -20,6 +22,7 @@ import lombok.Setter;
 @Table(name="user_ratings")
 public class Rating {
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private String ratingId;
     
     @NotBlank(message = "User ID is mandatory")

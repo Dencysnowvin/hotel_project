@@ -6,9 +6,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.cts.bookingservice.dto.HotelDTO;
 
-@FeignClient(name = "hotel-service")
-public interface HotelServiceClient {
-    @GetMapping("/hotels/{id}")
-    HotelDTO getHotelById(@PathVariable("id") long id);
+@FeignClient(name = "HOTELSERVICE")
+public interface HotelClient {
+    @GetMapping("/hotels/{hotelId}")
+    HotelDTO getAllDetailsOfHotel(@PathVariable("hotelId") Long hotelId);
 }
-

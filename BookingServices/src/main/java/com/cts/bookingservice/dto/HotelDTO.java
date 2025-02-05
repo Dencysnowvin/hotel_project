@@ -10,20 +10,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HotelDTO {
-    
+
 	private long id;
 
-    @NotNull(message = "Name is mandatory")
-    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
-    private String name;
+	@NotNull(message = "Name is mandatory")
+	@Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
+	private String name;
 
-    @NotNull(message = "Location is mandatory")
-    @Size(min = 2, max = 100, message = "Location must be between 2 and 100 characters")
-    private String location;
+	@NotNull(message = "Location is mandatory")
+	@Size(min = 2, max = 100, message = "Location must be between 2 and 100 characters")
+	private String location;
 
-    @NotNull(message = "About is mandatory")
-    @Size(min = 10, max = 500, message = "About must be between 10 and 500 characters")
-    private String about;
-	    
+	@NotNull(message = "About is mandatory")
+	@Size(min = 10, max = 500, message = "About must be between 10 and 500 characters")
+	private String about;
+
 }
-

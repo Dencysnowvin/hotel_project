@@ -1,5 +1,7 @@
 package com.cts.rating.dto;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -14,6 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RatingDTO {
 	    @Id
+	    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	    private String ratingId;
         
 	    @NotBlank(message = "User ID is mandatory")

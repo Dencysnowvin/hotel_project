@@ -5,10 +5,9 @@ import java.util.List;
 import com.cts.userservice.dto.UserDTO;
 
 public interface UserService {
-	    UserDTO saveUser(UserDTO userDTO);
-	    UserDTO getUserById(Long id);
-	    UserDTO getUserByEmail(String email);
-	    List<UserDTO> getAllUsers();
-	    void deleteUser(Long id);
-	    
+	UserDTO createUser(UserDTO userDTO);
+    UserDTO getUserById(Long userId);
+    List<UserDTO> getAllUsers();
+    UserDTO updateUser(Long userId, UserDTO userDTO);
+    void deleteUser(Long userId);
 }
