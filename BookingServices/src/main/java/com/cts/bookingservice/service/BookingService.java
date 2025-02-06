@@ -1,27 +1,15 @@
 package com.cts.bookingservice.service;
 
 import java.util.List;
-
-import com.cts.bookingservice.dto.BookingDTO;
-import com.cts.bookingservice.dto.HotelDTO;
+import java.util.Optional;
+import com.cts.bookingservice.entity.Booking;
 
 public interface BookingService {
-	BookingDTO createBooking(BookingDTO bookingDTO);
-
-	BookingDTO getBookingById(Long bookingId);
-
-	List<BookingDTO> getBookingsByUserId(Long userId);
-
-	List<BookingDTO> getBookingsByHotelId(Long hotelId);
-
-	List<BookingDTO> getBookingsByRoomId(Long roomId);
-
-	List<BookingDTO> getAllBookings();
-
-	BookingDTO updateBookingStatus(Long bookingId, String status);
-
-	void deleteBooking(Long bookingId);
-	
-	HotelDTO getAllDetailsOfHotel(Long hotelId);
-
+    Booking createBooking(Booking booking);
+    Optional<Booking> getBookingById(Long bookingId);
+    List<Booking> getAllBookings();
+    Booking updateBooking(Long bookingId, Booking booking);
+    void deleteBooking(Long bookingId);
+    List<Booking> getAllBookingsForHotel(Long hotelId);
+    
 }

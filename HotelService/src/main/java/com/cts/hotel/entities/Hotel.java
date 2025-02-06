@@ -5,7 +5,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +27,7 @@ public class Hotel {
 
 	    @NotBlank(message = "Name is mandatory")
 	    @Size(max = 100, message = "Name should not exceed 100 characters")
-	    private String name;
+	    private String hotelName;
 
 	    @NotBlank(message = "Location is mandatory")
 	    @Size(max = 200, message = "Location should not exceed 200 characters")
@@ -32,5 +35,10 @@ public class Hotel {
 
 	    @Size(max = 500, message = "About should not exceed 500 characters")
 	    private String about;
+	    
+	    @Min(value = 1, message = "Ratings must be between 1 and 5")
+	    @Max(value = 5, message = "Ratings must be between 1 and 5")
+	    private int ratings;
+
 
 }

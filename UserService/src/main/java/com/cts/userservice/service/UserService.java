@@ -1,13 +1,13 @@
 package com.cts.userservice.service;
 
 import java.util.List;
-
-import com.cts.userservice.dto.UserDTO;
+import com.cts.userservice.entity.User;
 
 public interface UserService {
-	UserDTO createUser(UserDTO userDTO);
-    UserDTO getUserById(Long userId);
-    List<UserDTO> getAllUsers();
-    UserDTO updateUser(Long userId, UserDTO userDTO);
-    void deleteUser(Long userId);
+	
+	    User registerUser(User userDTO);
+	    User getUserById(int userId);
+	    List<User> getAllUsers();
+	    User getUserByName(String username);
+	
 }

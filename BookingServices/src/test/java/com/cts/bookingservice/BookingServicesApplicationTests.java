@@ -1,7 +1,7 @@
 package com.cts.bookingservice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 import static org.mockito.Mockito.verify;
@@ -19,14 +19,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.cts.bookingservice.dto.BookingDTO;
-import com.cts.bookingservice.dto.HotelDTO;
 
 import com.cts.bookingservice.entity.Booking;
-import com.cts.bookingservice.exception.ResourceNotFoundException;
+import com.cts.bookingservice.entity.Room;
+import com.cts.bookingservice.entity.RoomType;
+import com.cts.bookingservice.entity.Status;
 import com.cts.bookingservice.repo.BookingRepository;
 import com.cts.bookingservice.service.impl.BookingServiceImpl;
 
@@ -35,110 +34,84 @@ class BookingServicesApplicationTests {
 	@Mock
     private BookingRepository bookingRepository;
 
-    
-
     @InjectMocks
     private BookingServiceImpl bookingService;
 
     private Booking booking;
-    private BookingDTO bookingDTO;
-    private HotelDTO hotelDTO;
+    private Room room;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    public void setUp() {
+        room = new Room();
+        room.setRoomId(1L);
+        room.setRoomNo("101");
+        room.setRoomType(RoomType.AC);
+        room.setMaxOccupancy(2);
+        room.setPrice(100.0);
 
         booking = new Booking();
         booking.setBookingId(1L);
-        booking.setUserId(1L);
+        booking.setGuestId(1L);
         booking.setHotelId(1L);
-        booking.setRoomId(1L);
-        booking.setBookingDate(LocalDate.now());
-        booking.setStatus("Pending");
-
-        bookingDTO = new BookingDTO();
-        bookingDTO.setBookingId(1L);
-        bookingDTO.setUserId(1L);
-        bookingDTO.setHotelId(1L);
-        bookingDTO.setRoomId(1L);
-        bookingDTO.setBookingDate(LocalDate.now());
-        bookingDTO.setStatus("Pending");
-
-      
-
-        hotelDTO = new HotelDTO();
-        hotelDTO.setId(1L);
-        hotelDTO.setName("Test Hotel");
-        hotelDTO.setLocation("Test Location");
+        booking.setRoom(room);
+        booking.setCheckInDate(LocalDate.of(2025, 2, 10));
+        booking.setCheckOutDate(LocalDate.of(2025, 2, 15));
+        booking.setStatus(Status.CONFIRMED);
     }
 
     @Test
-    void testCreateBooking() {
-       
+    public void testCreateBooking() {
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
 
-        BookingDTO createdBooking = bookingService.createBooking(bookingDTO);
+        Booking createdBooking = bookingService.createBooking(booking);
 
         assertNotNull(createdBooking);
-        assertEquals(1L, createdBooking.getBookingId());
-        assertEquals("Pending", createdBooking.getStatus());
+        assertEquals(booking.getBookingId(), createdBooking.getBookingId());
+        verify(bookingRepository, times(1)).save(booking);
     }
 
     @Test
-    void testGetBookingById() {
+    public void testGetBookingById() {
         when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
-       
 
-        BookingDTO foundBooking = bookingService.getBookingById(1L);
+        Optional<Booking> foundBooking = bookingService.getBookingById(1L);
 
-        assertNotNull(foundBooking);
-        assertEquals(1L, foundBooking.getBookingId());
+        assertTrue(foundBooking.isPresent());
+        assertEquals(booking.getBookingId(), foundBooking.get().getBookingId());
+        verify(bookingRepository, times(1)).findById(1L);
     }
 
     @Test
-    void testGetBookingById_NotFound() {
-        when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
+    public void testGetAllBookings() {
+        List<Booking> bookings = Arrays.asList(booking);
+        when(bookingRepository.findAll()).thenReturn(bookings);
 
-        assertThrows(ResourceNotFoundException.class, () -> bookingService.getBookingById(1L));
+        List<Booking> allBookings = bookingService.getAllBookings();
+
+        assertNotNull(allBookings);
+        assertEquals(1, allBookings.size());
+        verify(bookingRepository, times(1)).findAll();
     }
 
     @Test
-    void testGetAllBookings() {
-        when(bookingRepository.findAll()).thenReturn(Arrays.asList(booking));
-
-        List<BookingDTO> bookings = bookingService.getAllBookings();
-
-        assertNotNull(bookings);
-        assertEquals(1, bookings.size());
-    }
-
-    @Test
-    void testUpdateBookingStatus() {
-        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+    public void testUpdateBooking() {
+        when(bookingRepository.existsById(1L)).thenReturn(true);
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
 
-        BookingDTO updatedBooking = bookingService.updateBookingStatus(1L, "Confirmed");
+        Booking updatedBooking = bookingService.updateBooking(1L, booking);
 
         assertNotNull(updatedBooking);
-        assertEquals("Confirmed", updatedBooking.getStatus());
+        assertEquals(booking.getBookingId(), updatedBooking.getBookingId());
+        verify(bookingRepository, times(1)).existsById(1L);
+        verify(bookingRepository, times(1)).save(booking);
     }
 
     @Test
-    void testDeleteBooking() {
-        when(bookingRepository.existsById(1L)).thenReturn(true);
+    public void testDeleteBooking() {
         doNothing().when(bookingRepository).deleteById(1L);
 
         bookingService.deleteBooking(1L);
 
         verify(bookingRepository, times(1)).deleteById(1L);
     }
-
-    @Test
-    void testDeleteBooking_NotFound() {
-        when(bookingRepository.existsById(1L)).thenReturn(false);
-
-        assertThrows(ResourceNotFoundException.class, () -> bookingService.deleteBooking(1L));
-    }
 }
-
-

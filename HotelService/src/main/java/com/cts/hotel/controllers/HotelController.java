@@ -2,9 +2,9 @@
 package com.cts.hotel.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,61 +15,59 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.cts.hotel.dto.BookingDTO;
-import com.cts.hotel.dto.HotelDTO;
 import com.cts.hotel.entities.Hotel;
 import com.cts.hotel.services.HotelService;
-
-import jakarta.validation.Valid;
 @RestController
-@RequestMapping("/hotels")
+@RequestMapping("/hotel")
 @Validated
 public class HotelController {
 
     @Autowired
     private HotelService hotelService;
-    
-    
 
     @PostMapping
-    public ResponseEntity<Hotel> createHotel(@Valid @RequestBody Hotel hotel) {
-        Hotel createdHotel = hotelService.create(hotel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdHotel);
+    public ResponseEntity<Hotel> createHotel(@RequestBody Hotel hotel) {
+        Hotel createdHotel = hotelService.createHotel(hotel);
+        return ResponseEntity.ok(createdHotel);
     }
 
-    @GetMapping("/{hotelId}")
-    public ResponseEntity<Hotel> getHotelById(@PathVariable Long hotelId) {
-        Hotel hotel = hotelService.get(hotelId);
-        return ResponseEntity.ok(hotel);
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Hotel> getHotelById(@PathVariable Long id) {
+        Optional<Hotel> hotel = hotelService.getHotelById(id);
+        return hotel.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    
+    @GetMapping("/name/{name}")
+    public ResponseEntity<List<Hotel>> getHotelsByName(@PathVariable String name) {
+        List<Hotel> hotels = hotelService.getHotelsByName(name);
+        return ResponseEntity.ok(hotels);
+    }
+
+    @GetMapping("/ratings/{ratings}")
+    public ResponseEntity<List<Hotel>> getHotelsByRatings(@PathVariable Integer ratings) {
+        List<Hotel> hotels = hotelService.getHotelsByRatings(ratings);
+        return ResponseEntity.ok(hotels);
     }
 
     @GetMapping
     public ResponseEntity<List<Hotel>> getAllHotels() {
-        List<Hotel> hotels = hotelService.getAll();
+        List<Hotel> hotels = hotelService.getAllHotels();
         return ResponseEntity.ok(hotels);
-        
     }
-        
-     @GetMapping("/bookings/{hotelId}")
-     public List<BookingDTO> getBookingsForHotel(@PathVariable Long hotelId){
-         return hotelService.getBookingsForHotel(hotelId);
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Hotel> updateHotel(@PathVariable Long id, @RequestBody Hotel hotel) {
+        try {
+            Hotel updatedHotel = hotelService.updateHotel(id, hotel);
+            return ResponseEntity.ok(updatedHotel);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
-     
-     @DeleteMapping("/{hotelId}")
-     public ResponseEntity<Void> deleteHotelById(@PathVariable Long hotelId) {
-         hotelService.delete(hotelId);
-         return ResponseEntity.noContent().build();
-     }
-     
-     @PutMapping("/{hotelId}")
-     public ResponseEntity<Hotel> updateHotelById(@PathVariable Long hotelId, @RequestBody Hotel hotelDetails) {
-         Hotel updatedHotel = hotelService.update(hotelId, hotelDetails);
-         return ResponseEntity.ok(updatedHotel);
-     }
-     @GetMapping("/details/{hotelId}")
-     public ResponseEntity<HotelDTO> getAllDetailsOfHotel(@PathVariable Long hotelId) {
-         HotelDTO hotel = hotelService.getAllDetailsOfHotel(hotelId);
-         return ResponseEntity.ok(hotel);
-     }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteHotel(@PathVariable Long id) {
+        hotelService.deleteHotel(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -1,40 +1,55 @@
 package com.cts.hotel.dto;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingDTO {
 
-	private Long bookingId;
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long bookingId;
 
-	@NotNull(message = "User ID is mandatory")
-	private Long userId;
+    @Column(nullable = false)
+    private Long guestId; // Reference to user
 
-	@NotNull(message = "Hotel ID is mandatory")
-	private Long hotelId;
+    @Column(nullable = false)
+    private Long hotelId; // Reference to hotel
 
-	@NotNull(message = "Room ID is mandatory")
-	private Long roomId;
+    @Embedded
+    private Room room; // Embedded Room class
 
-	@NotNull(message = "Booking date is mandatory")
-	@FutureOrPresent(message = "Booking date must be in the present or future")
-	private LocalDate bookingDate;
+    @Column(nullable = false)
+    private LocalDate checkInDate;
 
-	@NotBlank(message = "Status is mandatory")
-	@Size(min = 3, max = 20, message = "Status should be between 3 and 20 characters")
-	private String status; // Pending, Confirmed, Cancelled
+    @Column(nullable = false)
+    private LocalDate checkOutDate;
 
-
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status; // Enum for status
+    
+    
+ // Method to calculate total price
+    public double calculateTotalPrice() {
+        long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        return daysBetween * room.getPrice();
+    }
 }

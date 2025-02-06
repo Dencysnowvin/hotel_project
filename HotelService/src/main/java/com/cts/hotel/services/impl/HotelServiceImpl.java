@@ -1,72 +1,63 @@
 package com.cts.hotel.services.impl;
 
 import java.util.List;
-
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.cts.hotel.controllers.client.BookingClient;
-import com.cts.hotel.dto.BookingDTO;
-import com.cts.hotel.dto.HotelDTO;
+
 import com.cts.hotel.entities.Hotel;
-import com.cts.hotel.exceptions.ResourceNotFoundException;
+import com.cts.hotel.exceptions.HotelNotFoundException;
 import com.cts.hotel.repositories.HotelRepository;
 import com.cts.hotel.services.HotelService;
 @Service
 public class HotelServiceImpl implements HotelService {
 
-    private static final Logger logger = LoggerFactory.getLogger(HotelServiceImpl.class);
-
     @Autowired
-    private HotelRepository repository;
-    
-    @Autowired
-    private BookingClient bookingClient;
+    private HotelRepository hotelRepository;
 
     @Override
-    public List<BookingDTO> getBookingsForHotel(Long hotelId) {
-        return bookingClient.getBookingsByHotelId(hotelId);
+    public Hotel createHotel(Hotel hotel) {
+        return hotelRepository.save(hotel);
     }
 
     @Override
-    public Hotel create(Hotel hotel) {
-        try {
-            return repository.save(hotel);
-        } catch (Exception e) {
-            logger.error("Error creating hotel: {}", e.getMessage(), e);
-            throw new RuntimeException("Error creating hotel", e);
+    public Optional<Hotel> getHotelById(Long hotelId) {
+        return hotelRepository.findById(hotelId);
+    }
+    
+    @Override
+    public List<Hotel> getHotelsByName(String hotelName) {
+        return hotelRepository.findByHotelName(hotelName);
+    }
+
+    @Override
+    public List<Hotel> getHotelsByRatings(Integer ratings) {
+        return hotelRepository.findByRatings(ratings);
+    }
+
+    @Override
+    public List<Hotel> getAllHotels() {
+        return hotelRepository.findAll();
+    }
+
+    @Override
+    public Hotel updateHotel(Long hotelId, Hotel hotel) {
+        if (hotelRepository.existsById(hotelId)) {
+            hotel.setHotelId(hotelId);
+            return hotelRepository.save(hotel);
+        } else {
+            throw new HotelNotFoundException("Hotel not found with id " + hotelId);
         }
     }
 
     @Override
-    public Hotel get(Long hotelId) {
-        return repository.findById(hotelId)
-                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with id: " + hotelId));
-    }
-
-    @Override
-    public List<Hotel> getAll() {
-        return repository.findAll();
-    }
-    @Override
-    public void delete(Long hotelId) {
-        repository.deleteById(hotelId);
-    }
-    @Override
-    public Hotel update(Long hotelId, Hotel hotelDetails) {
-        Hotel hotel = repository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException("Hotel not found"));
-
-        hotel.setName(hotelDetails.getName());
-        hotel.setLocation(hotelDetails.getLocation());
-        hotel.setAbout(hotelDetails.getAbout());
-
-        return repository.save(hotel);
-    }
-    @Override
-    public HotelDTO getAllDetailsOfHotel(Long hotelId) {
-        return bookingClient.getAllDetailsOfHotel(hotelId);
+    public void deleteHotel(Long hotelId) {
+        if (hotelRepository.existsById(hotelId)) {
+            hotelRepository.deleteById(hotelId);
+        } else {
+            throw new HotelNotFoundException("Hotel not found with id " + hotelId);
+        }
     }
 }

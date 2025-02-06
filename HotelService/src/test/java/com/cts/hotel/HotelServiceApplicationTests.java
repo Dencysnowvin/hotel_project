@@ -19,7 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 
 import com.cts.hotel.entities.Hotel;
-import com.cts.hotel.exceptions.ResourceNotFoundException;
+import com.cts.hotel.exceptions.HotelNotFoundException;
 import com.cts.hotel.repositories.HotelRepository;
 import com.cts.hotel.services.impl.HotelServiceImpl;
 
@@ -71,7 +71,7 @@ public class HotelServiceApplicationTests {
     public void testGetHotelById_NotFound() {
         when(hotelRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> {
+        assertThrows(HotelNotFoundException.class, () -> {
             hotelService.get(1L);
         });
     }
