@@ -1,12 +1,14 @@
 package com.cts.hotel.services.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+import com.cts.hotel.controllers.client.BookingClient;
+import com.cts.hotel.dto.BookingDTO;
 import com.cts.hotel.entities.Hotel;
 import com.cts.hotel.exceptions.HotelNotFoundException;
 import com.cts.hotel.repositories.HotelRepository;
@@ -16,6 +18,23 @@ public class HotelServiceImpl implements HotelService {
 
     @Autowired
     private HotelRepository hotelRepository;
+    
+    @Autowired
+    private BookingClient bookingClient;
+
+    @Override
+    public List<BookingDTO> getAllBookings() {
+        List<BookingDTO> bookings = bookingClient.getAllBookings();
+        // Process bookings if needed
+        return bookings;
+    }
+
+    @Override
+    public List<BookingDTO> getBookingsForDate(LocalDate checkInDate) {
+        List<BookingDTO> bookings = bookingClient.getReservationsForDate(checkInDate);
+        // Process bookings if needed
+        return bookings;
+    }
 
     @Override
     public Hotel createHotel(Hotel hotel) {

@@ -42,10 +42,10 @@ public class Booking {
     @Column(nullable = false)
     private Status status; // Enum for status
     
-    
  // Method to calculate total price
     public double calculateTotalPrice() {
         long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         return daysBetween * room.getPrice();
     }
+ 
 }

@@ -1,9 +1,13 @@
 package com.cts.hotel.entities;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -39,6 +43,9 @@ public class Hotel {
 	    @Min(value = 1, message = "Ratings must be between 1 and 5")
 	    @Max(value = 5, message = "Ratings must be between 1 and 5")
 	    private int ratings;
+	    
+	    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
+	    private List<Room> rooms;
 
 
 }
