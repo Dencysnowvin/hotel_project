@@ -3,9 +3,9 @@ package com.cts.hotel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -14,79 +14,68 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
-
-import com.cts.hotel.entities.Hotel;
-import com.cts.hotel.exceptions.HotelNotFoundException;
-import com.cts.hotel.repositories.HotelRepository;
-import com.cts.hotel.services.impl.HotelServiceImpl;
+import com.cts.hotel.controllers.client.BookingClient;
+import com.cts.hotel.dto.BookingDTO;
+import com.cts.hotel.entities.Room;
+import com.cts.hotel.entities.RoomType;
+import com.cts.hotel.repositories.RoomRepository;
+import com.cts.hotel.services.impl.RoomServiceImpl;
 
 @SpringBootTest
 public class HotelServiceApplicationTests {
 
 	@Mock
-    private HotelRepository hotelRepository;
+    private RoomRepository roomRepository;
+
+    @Mock
+    private BookingClient bookingClient;
 
     @InjectMocks
-    private HotelServiceImpl hotelService;
-
-    private Hotel hotel;
+    private RoomServiceImpl roomService;
 
     @BeforeEach
     public void setUp() {
-        hotel = new Hotel();
-        hotel.setHotelId(1L);
-        hotel.setName("Test Hotel");
-        hotel.setLocation("Test Location");
-        hotel.setAbout("Test About");
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testCreateHotel() {
-        when(hotelRepository.save(any(Hotel.class))).thenReturn(hotel);
+    public void testGetAllBookings() {
+        BookingDTO booking1 = new BookingDTO(1L, 101L, 201L, LocalDate.now(), LocalDate.now().plusDays(2));
+        BookingDTO booking2 = new BookingDTO(2L, 102L, 202L, LocalDate.now(), LocalDate.now().plusDays(3));
+        List<BookingDTO> bookings = Arrays.asList(booking1, booking2);
 
-        Hotel createdHotel = hotelService.create(hotel);
+        when(bookingClient.getAllBookings()).thenReturn(bookings);
 
-        assertEquals(hotel.getHotelId(), createdHotel.getHotelId());
-        assertEquals(hotel.getName(), createdHotel.getName());
-        assertEquals(hotel.getLocation(), createdHotel.getLocation());
-        assertEquals(hotel.getAbout(), createdHotel.getAbout());
+        List<BookingDTO> result = roomService.getAllBookings();
+        assertEquals(2, result.size());
+        assertEquals(booking1, result.get(0));
+        assertEquals(booking2, result.get(1));
     }
 
     @Test
-    public void testGetHotelById() {
-        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+    public void testGetRoomById() {
+        Room room = new Room();
+        room.setRoomId(1L);
+        room.setRoomNo("101");
+        room.setRoomType(RoomType.Deluxe);
+        room.setMaxOccupancy(2);
+        room.setPrice(100.0);
 
-        Hotel foundHotel = hotelService.get(1L);
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
 
-        assertEquals(hotel.getHotelId(), foundHotel.getHotelId());
-        assertEquals(hotel.getName(), foundHotel.getName());
-        assertEquals(hotel.getLocation(), foundHotel.getLocation());
-        assertEquals(hotel.getAbout(), foundHotel.getAbout());
+        Room result = roomService.getRoomById(1L);
+        assertEquals(room, result);
     }
 
     @Test
-    public void testGetHotelById_NotFound() {
-        when(hotelRepository.findById(1L)).thenReturn(Optional.empty());
+    public void testGetRoomById_NotFound() {
+        when(roomRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(HotelNotFoundException.class, () -> {
-            hotelService.get(1L);
+        assertThrows(RuntimeException.class, () -> {
+            roomService.getRoomById(1L);
         });
-    }
-
-    @Test
-    public void testGetAllHotels() {
-        List<Hotel> hotels = Arrays.asList(hotel);
-        when(hotelRepository.findAll()).thenReturn(hotels);
-
-        List<Hotel> hotelList = hotelService.getAll();
-
-        assertEquals(1, hotelList.size());
-        assertEquals(hotel.getHotelId(), hotelList.get(0).getHotelId());
-        assertEquals(hotel.getName(), hotelList.get(0).getName());
-        assertEquals(hotel.getLocation(), hotelList.get(0).getLocation());
-        assertEquals(hotel.getAbout(), hotelList.get(0).getAbout());
     }
 }

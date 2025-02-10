@@ -1,9 +1,13 @@
 package com.cts.bookingservice.controller;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,55 +16,77 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.cts.bookingservice.entity.Booking;
+
+import com.cts.bookingservice.dto.BookingDTO;
+import com.cts.bookingservice.dto.RoomDTO;
 import com.cts.bookingservice.service.BookingService;
 
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/bookings")
 public class BookingController {
 
-    @Autowired
-    private BookingService bookingService;
+	    @Autowired
+	    private BookingService bookingService;
 
-    @PostMapping
-    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
-        Booking createdBooking = bookingService.createBooking(booking);
-        return ResponseEntity.ok(createdBooking);
-    }
+	    @GetMapping
+	    public List<BookingDTO> getAllBookings() {
+	        return bookingService.getAllBookings();
+	    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
-        Optional<Booking> booking = bookingService.getBookingById(id);
-        return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
+	    @GetMapping("/{id}")
+	    public ResponseEntity<BookingDTO> getBookingById(@PathVariable Long id) {
+	        return ResponseEntity.ok(bookingService.getBookingById(id));
+	    }
+	    
+	    @GetMapping("/rooms")
+	    public ResponseEntity<List<RoomDTO>> getAllRooms() {
+	        List<RoomDTO> rooms = bookingService.getAllRooms();
+	        return ResponseEntity.ok(rooms);
+	    }
 
-    @GetMapping
-    public ResponseEntity<List<Booking>> getAllBookings() {
-        List<Booking> bookings = bookingService.getAllBookings();
-        return ResponseEntity.ok(bookings);
-    }
-    
-    @GetMapping("/hotel/{hotelId}")
-    public ResponseEntity<List<Booking>> getAllBookingsByHotel(@PathVariable Long hotelId) {
-        List<Booking> bookings = bookingService.getAllBookingsForHotel(hotelId);
-        return ResponseEntity.ok(bookings);
-    }
+	    @PostMapping
+	    public BookingDTO createBooking(@RequestBody BookingDTO bookingDTO) {
+	        return bookingService.createBooking(bookingDTO);
+	    }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Booking> updateBooking(@PathVariable Long id, @RequestBody Booking booking) {
-        try {
-            Booking updatedBooking = bookingService.updateBooking(id, booking);
-            return ResponseEntity.ok(updatedBooking);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+	    @PutMapping("/{id}")
+	    public ResponseEntity<BookingDTO> updateBooking(@PathVariable Long id, @RequestBody BookingDTO bookingDetails) {
+	        return ResponseEntity.ok(bookingService.updateBooking(id, bookingDetails));
+	    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
-        bookingService.deleteBooking(id);
-        return ResponseEntity.noContent().build();
-    }
-}
+	    @DeleteMapping("/{id}")
+	    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+	        bookingService.deleteBooking(id);
+	        return ResponseEntity.noContent().build();
+	    }
+
+	    @GetMapping("/availability")
+	    public ResponseEntity<Boolean> checkRoomAvailability(
+	            @RequestParam Long roomId,
+	            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
+	            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate) {
+	        boolean isAvailable = bookingService.isRoomAvailable(roomId, checkInDate, checkOutDate);
+	        return ResponseEntity.ok(isAvailable);
+	    }
+
+	    @PostMapping("/confirm-booking")
+	    public ResponseEntity<Map<String, Object>> confirmBooking(
+	            @RequestParam Long roomId,
+	            @RequestParam Long guestId,
+	            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
+	            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate) {
+	        BookingDTO bookingDTO = bookingService.confirmBooking(roomId,guestId, checkInDate, checkOutDate);
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("message", "Booking confirmed");
+	        response.put("booking", bookingDTO);
+	        return ResponseEntity.ok(response);
+	    }
+	    
+	    @GetMapping("/bydate")
+	    public List<BookingDTO> getBookingsByDate(@RequestParam("checkInDate") LocalDate checkInDate) {
+	        return bookingService.getBookingsByDate(checkInDate);
+	    }
+	}

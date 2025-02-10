@@ -1,14 +1,22 @@
 package com.cts.hotel.entities;
 
+
+
 import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Data
-@Embeddable
+@Entity
+@Table(name="rooms")
 public class Room {
 
-    @Column(nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long roomId;
 
     @Column(nullable = false)
@@ -21,5 +29,7 @@ public class Room {
     private int maxOccupancy; // Maximum number of people
     
     @Column(nullable = false)
-    private double price; // Price for the room 
+    private double price; // per day price for the room 
+
+
 }

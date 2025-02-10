@@ -1,7 +1,6 @@
 package com.cts.userservice.controller;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +19,13 @@ import jakarta.validation.Valid;
 @Validated
 public class UserController {
 
-	@Autowired
-	private UserService userService;
+	private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
     
+    // register user
 	@PostMapping("/register")
 	public ResponseEntity<User> registerUser(@Valid @RequestBody User user) {
 		return ResponseEntity.ok(userService.registerUser(user));

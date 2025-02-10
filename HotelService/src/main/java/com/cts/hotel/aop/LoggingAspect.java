@@ -1,4 +1,4 @@
-package com.cts.userservice.aop;
+package com.cts.hotel.aop;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -9,23 +9,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+
 @Aspect
 @Component
 public class LoggingAspect {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
 
-	@Before("execution(* com.project.userservice.service.*.*(..))")
+	@Before("execution(* com.project.hotel.service.*.*(..))")
 	public void logBefore(JoinPoint joinPoint) {
 		logger.info("Entering method: {} with arguments: {}", joinPoint.getSignature().getName(), joinPoint.getArgs());
 	}
 
-	@AfterReturning(pointcut = "execution(* com.project.userservice.service.*.*(..))", returning = "result")
+	@AfterReturning(pointcut = "execution(* com.project.hotel.service.*.*(..))", returning = "result")
 	public void logAfterReturning(JoinPoint joinPoint, Object result) {
 		logger.info("Exiting method: {} with result: {}", joinPoint.getSignature().getName(), result);
 	}
 
-	@AfterThrowing(pointcut = "execution(* com.project.userservice.service.*.*(..))", throwing = "error")
+	@AfterThrowing(pointcut = "execution(* com.project.hotel.service.*.*(..))", throwing = "error")
 	public void logAfterThrowing(JoinPoint joinPoint, Throwable error) {
 		logger.error("Exception in method: {} with cause: {}", joinPoint.getSignature().getName(), error.getMessage());
 	}

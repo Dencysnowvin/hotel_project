@@ -1,15 +1,14 @@
-package com.cts.hotel.dto;
+package com.cts.bookingservice.dto;
 
 import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-
-
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class BookingDTO {
 
     
@@ -25,18 +24,8 @@ public class BookingDTO {
 
    
     private LocalDate checkOutDate;
-    
+
+    private double price;
    
-
-
 	
 }
-	
-    
-    
-// // Method to calculate total price
-//    public double calculateTotalPrice() {
-//        long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-//        return daysBetween * room.getPrice();
-//    }
-

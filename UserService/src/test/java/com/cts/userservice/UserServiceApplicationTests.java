@@ -1,12 +1,7 @@
 package com.cts.userservice;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -20,8 +15,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.cts.userservice.dto.UserDTO;
-import com.cts.userservice.entity.Role;
 import com.cts.userservice.entity.User;
 import com.cts.userservice.repository.UserRepository;
 import com.cts.userservice.service.impl.UserServiceImpl;
@@ -31,67 +24,86 @@ class UserServiceApplicationTests {
 
 	
 
-	 @Mock
-	    private UserRepository userRepository;
+	@Mock
+    private UserRepository userRepository;
 
-	    @InjectMocks
-	    private UserServiceImpl userService;
+    @InjectMocks
+    private UserServiceImpl userService;
 
-	    private User user;
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-	    @BeforeEach
-	    void setUp() {
-	        MockitoAnnotations.openMocks(this);
-	        user = new User();
-	        user.setUserId(1);
-	        user.setUsername("JohnDoe");
-	        user.setEmail("john.doe@example.com");
-	        user.setContactNumber("1234567890");
-	        user.setRole(Role.Guest);
-	    }
+    @Test
+    public void testRegisterUser() {
+        User user = new User();
+        user.setUserId(1);
+        user.setUsername("testuser");
 
-	    @Test
-	    void testCreateUser() {
-	        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
 
-	        User createdUser = userService.registerUser(user);
+        User result = userService.registerUser(user);
+        assertEquals(user, result);
+    }
 
-	        assertNotNull(createdUser);
-	        assertEquals(user.getUsername(), createdUser.getUsername());
-	        verify(userRepository, times(1)).save(user);
-	    }
+    @Test
+    public void testGetUserById() {
+        User user = new User();
+        user.setUserId(1);
+        user.setUsername("testuser");
 
-	    @Test
-	    void testGetUserById() {
-	        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
 
-	        User foundUser = userService.getUserById(1);
+        User result = userService.getUserById(1);
+        assertEquals(user, result);
+    }
 
-	        assertNotNull(foundUser);
-	        assertEquals(user.getUsername(), foundUser.getUsername());
-	        verify(userRepository, times(1)).findById(1);
-	    }
+    @Test
+    public void testGetUserById_NotFound() {
+        when(userRepository.findById(1)).thenReturn(Optional.empty());
 
-	    @Test
-	    void testGetAllUsers() {
-	        List<User> users = Arrays.asList(user);
-	        when(userRepository.findAll()).thenReturn(users);
+        User result = userService.getUserById(1);
+        assertNull(result);
+    }
 
-	        List<User> allUsers = userService.getAllUsers();
+    @Test
+    public void testGetAllUsers() {
+        User user1 = new User();
+        user1.setUserId(1);
+        user1.setUsername("testuser1");
 
-	        assertNotNull(allUsers);
-	        assertEquals(1, allUsers.size());
-	        verify(userRepository, times(1)).findAll();
-	    }
+        User user2 = new User();
+        user2.setUserId(2);
+        user2.setUsername("testuser2");
 
-	    @Test
-	    void testGetUserByName() {
-	        when(userRepository.findByUsername("JohnDoe")).thenReturn(Optional.of(user));
+        List<User> users = Arrays.asList(user1, user2);
 
-	        User foundUser = userService.getUserByName("JohnDoe");
+        when(userRepository.findAll()).thenReturn(users);
 
-	        assertNotNull(foundUser);
-	        assertEquals(user.getUsername(), foundUser.getUsername());
-	        verify(userRepository, times(1)).findByUsername("JohnDoe");
-	    }
-	}
+        List<User> result = userService.getAllUsers();
+        assertEquals(2, result.size());
+        assertEquals(user1, result.get(0));
+        assertEquals(user2, result.get(1));
+    }
+
+    @Test
+    public void testGetUserByName() {
+        User user = new User();
+        user.setUserId(1);
+        user.setUsername("testuser");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+
+        User result = userService.getUserByName("testuser");
+        assertEquals(user, result);
+    }
+
+    @Test
+    public void testGetUserByName_NotFound() {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
+
+        User result = userService.getUserByName("testuser");
+        assertNull(result);
+    }
+}

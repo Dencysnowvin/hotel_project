@@ -1,14 +1,7 @@
 package com.cts.bookingservice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -19,99 +12,110 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
-
+import com.cts.bookingservice.client.RoomClient;
+import com.cts.bookingservice.dto.BookingDTO;
 import com.cts.bookingservice.entity.Booking;
-import com.cts.bookingservice.entity.Room;
-import com.cts.bookingservice.entity.RoomType;
-import com.cts.bookingservice.entity.Status;
 import com.cts.bookingservice.repo.BookingRepository;
 import com.cts.bookingservice.service.impl.BookingServiceImpl;
 
 @SpringBootTest
 class BookingServicesApplicationTests {
+	
 	@Mock
     private BookingRepository bookingRepository;
+
+    @Mock
+    private RoomClient roomClient;
 
     @InjectMocks
     private BookingServiceImpl bookingService;
 
-    private Booking booking;
-    private Room room;
-
     @BeforeEach
     public void setUp() {
-        room = new Room();
-        room.setRoomId(1L);
-        room.setRoomNo("101");
-        room.setRoomType(RoomType.AC);
-        room.setMaxOccupancy(2);
-        room.setPrice(100.0);
-
-        booking = new Booking();
-        booking.setBookingId(1L);
-        booking.setGuestId(1L);
-        booking.setHotelId(1L);
-        booking.setRoom(room);
-        booking.setCheckInDate(LocalDate.of(2025, 2, 10));
-        booking.setCheckOutDate(LocalDate.of(2025, 2, 15));
-        booking.setStatus(Status.CONFIRMED);
-    }
-
-    @Test
-    public void testCreateBooking() {
-        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
-
-        Booking createdBooking = bookingService.createBooking(booking);
-
-        assertNotNull(createdBooking);
-        assertEquals(booking.getBookingId(), createdBooking.getBookingId());
-        verify(bookingRepository, times(1)).save(booking);
-    }
-
-    @Test
-    public void testGetBookingById() {
-        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
-
-        Optional<Booking> foundBooking = bookingService.getBookingById(1L);
-
-        assertTrue(foundBooking.isPresent());
-        assertEquals(booking.getBookingId(), foundBooking.get().getBookingId());
-        verify(bookingRepository, times(1)).findById(1L);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
     public void testGetAllBookings() {
-        List<Booking> bookings = Arrays.asList(booking);
+        Booking booking1 = new Booking();
+        booking1.setBookingId(1L);
+        booking1.setRoomId(101L);
+        booking1.setGuestId(201L);
+        booking1.setCheckInDate(LocalDate.now());
+        booking1.setCheckOutDate(LocalDate.now().plusDays(2));
+
+        Booking booking2 = new Booking();
+        booking2.setBookingId(2L);
+        booking2.setRoomId(102L);
+        booking2.setGuestId(202L);
+        booking2.setCheckInDate(LocalDate.now());
+        booking2.setCheckOutDate(LocalDate.now().plusDays(3));
+
+        List<Booking> bookings = Arrays.asList(booking1, booking2);
+
         when(bookingRepository.findAll()).thenReturn(bookings);
 
-        List<Booking> allBookings = bookingService.getAllBookings();
-
-        assertNotNull(allBookings);
-        assertEquals(1, allBookings.size());
-        verify(bookingRepository, times(1)).findAll();
+        List<BookingDTO> result = bookingService.getAllBookings();
+        assertEquals(2, result.size());
+        assertEquals(booking1.getBookingId(), result.get(0).getBookingId());
+        assertEquals(booking2.getBookingId(), result.get(1).getBookingId());
     }
 
     @Test
-    public void testUpdateBooking() {
-        when(bookingRepository.existsById(1L)).thenReturn(true);
-        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+    public void testGetBookingById() {
+        Booking booking = new Booking();
+        booking.setBookingId(1L);
+        booking.setRoomId(101L);
+        booking.setGuestId(201L);
+        booking.setCheckInDate(LocalDate.now());
+        booking.setCheckOutDate(LocalDate.now().plusDays(2));
 
-        Booking updatedBooking = bookingService.updateBooking(1L, booking);
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
-        assertNotNull(updatedBooking);
-        assertEquals(booking.getBookingId(), updatedBooking.getBookingId());
-        verify(bookingRepository, times(1)).existsById(1L);
-        verify(bookingRepository, times(1)).save(booking);
+        BookingDTO result = bookingService.getBookingById(1L);
+        assertEquals(booking.getBookingId(), result.getBookingId());
     }
 
     @Test
-    public void testDeleteBooking() {
-        doNothing().when(bookingRepository).deleteById(1L);
+    public void testGetBookingById_NotFound() {
+        when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
 
-        bookingService.deleteBooking(1L);
+        assertThrows(RuntimeException.class, () -> {
+            bookingService.getBookingById(1L);
+        });
+    }
 
-        verify(bookingRepository, times(1)).deleteById(1L);
+    @Test
+    public void testConvertToDTO() {
+        Booking booking = new Booking();
+        booking.setBookingId(1L);
+        booking.setRoomId(101L);
+        booking.setGuestId(201L);
+        booking.setCheckInDate(LocalDate.now());
+        booking.setCheckOutDate(LocalDate.now().plusDays(2));
+
+        BookingDTO bookingDTO = bookingService.convertToDTO(booking);
+
+        assertEquals(booking.getBookingId(), bookingDTO.getBookingId());
+        assertEquals(booking.getRoomId(), bookingDTO.getRoomId());
+        assertEquals(booking.getGuestId(), bookingDTO.getGuestId());
+        assertEquals(booking.getCheckInDate(), bookingDTO.getCheckInDate());
+        assertEquals(booking.getCheckOutDate(), bookingDTO.getCheckOutDate());
+    }
+
+    @Test
+    public void testConvertToEntity() {
+        BookingDTO bookingDTO = new BookingDTO(1L, 101L, 201L, LocalDate.now(), LocalDate.now().plusDays(2));
+
+        Booking booking = bookingService.convertToEntity(bookingDTO);
+
+        assertEquals(bookingDTO.getBookingId(), booking.getBookingId());
+        assertEquals(bookingDTO.getRoomId(), booking.getRoomId());
+        assertEquals(bookingDTO.getGuestId(), booking.getGuestId());
+        assertEquals(bookingDTO.getCheckInDate(), booking.getCheckInDate());
+        assertEquals(bookingDTO.getCheckOutDate(), booking.getCheckOutDate());
     }
 }

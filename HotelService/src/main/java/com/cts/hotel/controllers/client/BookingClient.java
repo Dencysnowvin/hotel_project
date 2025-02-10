@@ -13,16 +13,11 @@ import com.cts.hotel.dto.BookingDTO;
 @FeignClient(name = "BOOKINGSERVICES")
 public interface BookingClient {
 	
-	@GetMapping("/getAll")
+	@GetMapping("/bookings")
 	public List<BookingDTO>getAllBookings();
 	
-	@GetMapping("/findByDate")
-	List<BookingDTO> getReservationsForDate(@RequestParam("date") LocalDate checkInDate );
-	
-//    @GetMapping("/bookings/hotel/{hotelId")
-//    List<BookingDTO> getBookingsByHotelId(@PathVariable("hotelId") Long hotelId);
-//    
-//    @GetMapping("/hotels/{hotelId}")
-//    HotelDTO getAllDetailsOfHotel(@PathVariable("hotelId") Long hotelId);
+	@GetMapping("/bookings/bydate")
+    List<BookingDTO> getBookingsByDate(@RequestParam("checkInDate") LocalDate checkInDate);
+
 }
 
