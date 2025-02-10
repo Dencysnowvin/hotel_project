@@ -812,3 +812,8 @@ com.netflix.discovery.shared.transport.TransportException: Cannot execute reques
 2025-02-10T23:27:08.108+05:30  INFO 26252 --- [BookingServices] [DiscoveryClient-CacheRefreshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Application version is -1: false
 2025-02-10T23:27:08.109+05:30  INFO 26252 --- [BookingServices] [DiscoveryClient-CacheRefreshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
 2025-02-10T23:27:08.135+05:30  INFO 26252 --- [BookingServices] [DiscoveryClient-CacheRefreshExecutor-%d] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2025-02-10T23:31:37.834+05:30  INFO 26252 --- [BookingServices] [AsyncResolver-bootstrap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-02-10T23:36:37.841+05:30  INFO 26252 --- [BookingServices] [AsyncResolver-bootstrap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-02-10T23:41:37.849+05:30  INFO 26252 --- [BookingServices] [AsyncResolver-bootstrap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-02-10T23:46:37.867+05:30  INFO 26252 --- [BookingServices] [AsyncResolver-bootstrap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-02-10T23:51:37.885+05:30  INFO 26252 --- [BookingServices] [AsyncResolver-bootstrap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
